@@ -26,53 +26,14 @@ import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-
-    private Map<String, Map<String, String>> clients;
+    private Map<String, Map<String, String>> clientRawInformation;
+    private Map<String, Client> clients;
     private String serverUrl ="http://104.131.102.127:5000";
-    private String username = "Eric";
+    private String username;
+    private MapUpdater mapUpdater;
+    private ClientUpdater clientUpdater;
+    Handler h = new Handler();
 
-    private void login() {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = serverUrl + "/login?username=" + username;
-
-        // Request a string response
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                }
-            }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
-
-    private void logout() {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = serverUrl + "/logout?username=" + username;
-
-        // Request a string response
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                }
-            }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
 
     private void updateClients() {
         // Instantiate the RequestQueue.
@@ -84,25 +45,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    // Update all clients
-                    // Parse JSON string, and place values into clients map
+                    // Update all clientRawInformation
+                    // Parse JSON string, and place values into clientRawInformationmap
                     try {
                         // Iterate through all users
                         // {"Kevin": {"longitude": "4557", "latitude": "345456"}, "Eric": {}}
                         JSONObject json = new JSONObject(response);
-                        clients.clear();
+                        clientRawInformation.clear();
                         for (Iterator<String> iter = json.keys(); iter.hasNext();) {
                             String user = iter.next();
 
                             // Setup user data map
-                            clients.put(user, new HashMap<String, String>());
+                            clientRawInformation.put(user, new HashMap<String, String>());
 
                             // Parse and store user data
                             JSONObject userData = json.getJSONObject(user);
+
                             for (Iterator<String> userDataIter = json.keys(); userDataIter.hasNext();) {
                                 String fieldName = userDataIter.next();
                                 String fieldValue = json.getString(fieldName);
-                                clients.get(user).put(fieldName, fieldValue);
+                                clientRawInformation.get(user).put(fieldName, fieldValue);
                             }
                         }
                     } catch (JSONException e) {
@@ -132,15 +94,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        clientRawInformation = new HashMap<>();
+        clientRawInformation.put(username, new HashMap<String, String>());
         clients = new HashMap<>();
-        clients.put(username, new HashMap<String, String>());
+        username = "Eric" + Math.random();
+        clientUpdater = new ClientUpdater(username, serverUrl);
+        mapUpdater = new MapUpdater(clientRawInformation);
 
-        login();
+
+        int delay = 1000; //milliseconds
+
+        h.postDelayed(new Runnable() {
+            public void run() {
+                updateClients();
+                mapUpdater.updateClientMarkers();
+                h.postDelayed(this, delay);
+            }
+        }, delay);
+
     }
 
     @Override
     protected void onDestroy() {
-        logout();
+        clientUpdater.logout();
         super.onDestroy();
     }
 
@@ -155,8 +131,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    public void onMapReady(GoogleMap googleMap)
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
