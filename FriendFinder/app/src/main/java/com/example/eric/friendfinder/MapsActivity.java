@@ -90,6 +90,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         // Iterate through all users
                         // {"Kevin": {"longitude": "4557", "latitude": "345456"}, "Eric": {}}
                         JSONObject json = new JSONObject(response);
+                        clients.clear();
                         for (Iterator<String> iter = json.keys(); iter.hasNext();) {
                             String user = iter.next();
 
