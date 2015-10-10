@@ -1,26 +1,43 @@
 package com.example.eric.friendfinder;
 
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.Map;
 
 /**
  * Created by kevin on 10/10/15.
  */
-public class ClientUpdater extends FragmentActivity {
+public class ClientUpdater {
 
     private String username;
     private String serverUrl;
     private LocationManager locationManager;
+    Context context;
 
-    private ClientUpdater(String _username, String url) {
+    public ClientUpdater(String _username, String url, Context context) {
         username = _username;
         serverUrl = url;
+        this.context = context;
         login();
         start();
     }
 
     public void login() {
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(context);
         String url = serverUrl + "/login?username=" + username;
 
         // Request a string response
@@ -41,7 +58,7 @@ public class ClientUpdater extends FragmentActivity {
 
     public void logout() {
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue queue = Volley.newRequestQueue(context);
         String url = serverUrl + "/logout?username=" + username;
 
         // Request a string response
@@ -64,7 +81,7 @@ public class ClientUpdater extends FragmentActivity {
     private LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             // Called when a new location is found by the network location provider.
-            updateCurrentLocationIfNeeded(location);
+            updateClientInformation(location);
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -76,9 +93,9 @@ public class ClientUpdater extends FragmentActivity {
 
     private void updateClientInformation(Location location) {
         // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        float latitude = location.getLatitude();
-        float longitude = location.getLongitude();
+        RequestQueue queue = Volley.newRequestQueue(context);
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
         String url = String.format("%s/update?username=%s&latitude=%f&longitude=%f", serverUrl, username, latitude, longitude);
 
         // Request a string response
@@ -97,20 +114,25 @@ public class ClientUpdater extends FragmentActivity {
         queue.add(stringRequest);
     }
 
+    public LatLng getCurrentCoordinates() {
+        try {
+            double latitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude();
+            double longitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude();
+            return new LatLng(latitude, longitude);
+        } catch (SecurityException exception) {
+            return new LatLng(0, 0);
+        }
+
+    }
+
     public void start() {
-        map = googleMap;
-        clientMarkers = new HashMap<String, Marker>();
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 //        map.setMyLocationEnabled(true);
 
         try {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-            double latitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLatitude();
-            double longitude = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER).getLongitude();
-            addUpdateMarker(username, new LatLng(latitude, longitude));
 
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 18);
-            map.animateCamera(cameraUpdate);
         } catch (SecurityException exception) {
             //Do something
         }

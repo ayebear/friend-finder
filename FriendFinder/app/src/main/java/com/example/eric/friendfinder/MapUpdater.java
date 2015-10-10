@@ -1,35 +1,42 @@
 package com.example.eric.friendfinder;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by kevin on 10/10/15.
  */
-public class MapUpdater implements Runnable{
+public class MapUpdater {
 
     private GoogleMap map;
 
     private Map<String, Map<String, String>> rawClientInformation;
     private Map<String, Marker> clientMarkers;
 
-    public MapUpdater(GoogleMap mmap, Map<String, Client> _clients) {
+    public MapUpdater(GoogleMap mmap, Map<String, Map<String, String>> _clients) {
         map = mmap;
-        clients = _clients;
+        rawClientInformation = _clients;
         clientMarkers = new HashMap<>();
     }
 
-    private void updateClients(Map<String, Map<String, String>> rawClientInformation) {
-        Map<String, Map<String, String>> rawClientInformation = fetchAllClients();
+    public void updateClientMarkers() {
+//        Map<String, Map<String, String>> rawClientInformation = fetchAllClients();
 
         for (Map.Entry<String, Map<String, String>> entry : rawClientInformation.entrySet()) {
             String username = entry.getKey();
             Map<String, String> clientInfo = entry.getValue();
+            System.out.println(username);
 
-            float latitude = Float.parseFloat(clientInfo['latitude']);
-            float longitude = Float.parseFloat(clientInfo['longitude']);
+            float latitude = Float.parseFloat(clientInfo.get("latitude"));
+            float longitude = Float.parseFloat(clientInfo.get("longitude"));
             addUpdateMarker(username, new LatLng(latitude, longitude));
         }
     }
@@ -37,7 +44,7 @@ public class MapUpdater implements Runnable{
     private void addUpdateMarker(String key, LatLng coordinates) {
         Marker clientMarker;
         if (clientMarkers.containsKey(key)) {
-            clientMarker = clients.get(key);
+            clientMarker = clientMarkers.get(key);
             clientMarker.setPosition(coordinates);
         }
         else {
@@ -46,7 +53,10 @@ public class MapUpdater implements Runnable{
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.pointer)));
             clientMarkers.put(key, clientMarker);
         }
-        updateBearing(clientMarker, clientMarker.getRotation() + 1);
+    }
 
+    public void moveCamera(LatLng coordinates) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(coordinates, 18);
+        map.animateCamera(cameraUpdate);
     }
 }

@@ -1,7 +1,9 @@
 package com.example.eric.friendfinder;
 
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -33,6 +35,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MapUpdater mapUpdater;
     private ClientUpdater clientUpdater;
     Handler h = new Handler();
+    private static final String TAG = MapsActivity.class.getSimpleName();
 
 
     private void updateClients() {
@@ -94,23 +97,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        System.out.println("Testing");
+        Log.d(TAG, "**************** Starting up!!!");
+
         clientRawInformation = new HashMap<>();
         clientRawInformation.put(username, new HashMap<String, String>());
         clients = new HashMap<>();
-        username = "Eric" + Math.random();
-        clientUpdater = new ClientUpdater(username, serverUrl);
-        mapUpdater = new MapUpdater(clientRawInformation);
-
-
-        int delay = 1000; //milliseconds
-
-        h.postDelayed(new Runnable() {
-            public void run() {
-                updateClients();
-                mapUpdater.updateClientMarkers();
-                h.postDelayed(this, delay);
-            }
-        }, delay);
+        username = "User" + (int)(Math.random() * 1000);
+        clientUpdater = new ClientUpdater(username, serverUrl, this);
 
     }
 
@@ -131,11 +125,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap)
+    public void onMapReady(GoogleMap googleMap) {
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+//        LatLng sydney = new LatLng(-34, 151);
+//        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+        mapUpdater = new MapUpdater(googleMap, clientRawInformation);
+
+
+        final int delay = 500; //milliseconds
+
+        h.postDelayed(new Runnable() {
+            public void run() {
+                updateClients();
+                mapUpdater.updateClientMarkers();
+                h.postDelayed(this, delay);
+            }
+        }, delay);
     }
 }
