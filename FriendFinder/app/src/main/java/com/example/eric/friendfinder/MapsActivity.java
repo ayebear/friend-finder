@@ -24,7 +24,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
 
-    private Map<String, Client> clients;
+    private Map<String, Map<String, String>> clients;
     private String serverUrl ="http://104.131.102.127:5000";
     private String username = "Eric";
 
@@ -70,6 +70,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         queue.add(stringRequest);
     }
 
+    private void updateClients() {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = serverUrl + "/getallclients";
+
+        // Request a string response
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Update all clients
+                        // Parse JSON string, and place values into clients map
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+    private void updatePosition() {
+        // Post new position
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         clients = new HashMap<>();
+        clients.put(username, new HashMap<String, String>());
 
         login();
     }
