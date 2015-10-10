@@ -17,7 +17,11 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -56,11 +60,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Request a string response
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                    }
-                }, new Response.ErrorListener() {
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                }
+            }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
@@ -77,13 +81,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Request a string response
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Update all clients
-                        // Parse JSON string, and place values into clients map
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    // Update all clients
+                    // Parse JSON string, and place values into clients map
+                    try {
+                        // Iterate through all users
+                        // {"Kevin": {"longitude": "4557", "latitude": "345456"}, "Eric": {}}
+                        JSONObject json = new JSONObject(response);
+                        for (Iterator<String> iter = json.keys(); iter.hasNext();) {
+                            String user = iter.next();
+
+                            // Setup user data map
+                            clients.put(user, new HashMap<String, String>());
+
+                            // Parse and store user data
+                            JSONObject userData = json.getJSONObject(user);
+                            for (Iterator<String> userDataIter = json.keys(); userDataIter.hasNext();) {
+                                String fieldName = userDataIter.next();
+                                String fieldValue = json.getString(fieldName);
+                                clients.get(user).put(fieldName, fieldValue);
+                            }
+                        }
+                    } catch (JSONException e) {
+//                            e.printStackTrace();
                     }
-                }, new Response.ErrorListener() {
+                }
+            }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
