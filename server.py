@@ -33,10 +33,7 @@ def login():
     username = rq.get('username')
 
     if username and username not in clients:
-        client = {}
-        client['username'] = username
-        # client['position'] = 'GPS location'
-        clients[username] = client
+        clients[username] = {}
         return username
 
     return ''
