@@ -104,7 +104,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         clientRawInformation.put(username, new HashMap<String, String>());
         clients = new HashMap<>();
         username = "User" + (int)(Math.random() * 1000);
-        clientUpdater = new ClientUpdater(username, serverUrl, this);
+
 
     }
 
@@ -132,7 +132,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
+        updateClients();
         mapUpdater = new MapUpdater(googleMap, clientRawInformation);
+        clientUpdater = new ClientUpdater(username, serverUrl, this);
+        mapUpdater.addUpdateMarker(clientUpdater.getUsername(), clientUpdater.getCurrentCoordinates());
+        mapUpdater.moveCamera(clientUpdater.getCurrentCoordinates());
 
 
         final int delay = 500; //milliseconds

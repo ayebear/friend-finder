@@ -5,7 +5,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -35,10 +34,14 @@ public class ClientUpdater {
         start();
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public void login() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = serverUrl + "/login?username=" + username;
+        String url = serverUrl + "/login?username=" + (username+(int)(Math.random() * 1000));
 
         // Request a string response
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -132,7 +135,7 @@ public class ClientUpdater {
 
         try {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-
+            updateClientInformation(new Location(LocationManager.NETWORK_PROVIDER));
         } catch (SecurityException exception) {
             //Do something
         }

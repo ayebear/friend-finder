@@ -48,7 +48,7 @@ public class MapUpdater {
         }
     }
 
-    private void addUpdateMarker(String key, LatLng coordinates) {
+    public void addUpdateMarker(String key, LatLng coordinates) {
         Marker clientMarker;
         if (clientMarkers.containsKey(key)) {
             clientMarker = clientMarkers.get(key);
