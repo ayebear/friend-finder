@@ -136,7 +136,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapUpdater = new MapUpdater(googleMap, clientRawInformation);
         clientUpdater = new ClientUpdater(username, serverUrl, this);
         mapUpdater.addUpdateMarker(clientUpdater.getUsername(), clientUpdater.getCurrentCoordinates());
-        mapUpdater.moveCamera(clientUpdater.getCurrentCoordinates());
 
 
         final int delay = 500; //milliseconds
@@ -145,6 +144,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void run() {
                 updateClients();
                 mapUpdater.updateClientMarkers();
+                mapUpdater.moveCamera(clientUpdater.getCurrentCoordinates());
                 h.postDelayed(this, delay);
             }
         }, delay);

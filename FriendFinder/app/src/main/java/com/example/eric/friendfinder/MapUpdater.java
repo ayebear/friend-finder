@@ -31,6 +31,7 @@ public class MapUpdater {
 //        Map<String, Map<String, String>> rawClientInformation = fetchAllClients();
 
         for (Map.Entry<String, Map<String, String>> entry : rawClientInformation.entrySet()) {
+
             String username = entry.getKey();
             Map<String, String> clientInfo = entry.getValue();
 //            System.out.println(username);
