@@ -41,7 +41,7 @@ public class ClientUpdater {
     public void login() {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
-        String url = serverUrl + "/login?username=" + (username+(int)(Math.random() * 1000));
+        String url = serverUrl + "/login?username=" + username;
 
         // Request a string response
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
