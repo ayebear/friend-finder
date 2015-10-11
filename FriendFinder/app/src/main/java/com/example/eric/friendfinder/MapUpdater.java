@@ -33,11 +33,18 @@ public class MapUpdater {
         for (Map.Entry<String, Map<String, String>> entry : rawClientInformation.entrySet()) {
             String username = entry.getKey();
             Map<String, String> clientInfo = entry.getValue();
-            System.out.println(username);
+//            System.out.println(username);
 
-            float latitude = Float.parseFloat(clientInfo.get("latitude"));
-            float longitude = Float.parseFloat(clientInfo.get("longitude"));
-            addUpdateMarker(username, new LatLng(latitude, longitude));
+            String latStr = clientInfo.get("latitude");
+            String longStr = clientInfo.get("longitude");
+            try {
+                float latitude = Float.parseFloat(latStr);
+                float longitude = Float.parseFloat(longStr);
+                addUpdateMarker(username, new LatLng(latitude, longitude));
+            }
+            catch (Exception e) {
+
+            }
         }
     }
 

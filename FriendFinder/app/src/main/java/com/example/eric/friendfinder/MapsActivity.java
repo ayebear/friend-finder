@@ -97,7 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        System.out.println("Testing");
+//        System.out.println("Testing");
         Log.d(TAG, "**************** Starting up!!!");
 
         clientRawInformation = new HashMap<>();
